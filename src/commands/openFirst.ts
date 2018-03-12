@@ -12,10 +12,10 @@ function normalizePath(fileName: string) {
     return fileName.replace(pathNormalizer, '/');
 }
 
-export class ShowRelatedCommand extends EditorCommand {
+export class OpenFirstRelatedCommand extends EditorCommand {
 
     constructor(context: ExtensionContext, private rulesProvider: RulesProvider) {
-        super(Commands.Show);
+        super(Commands.OpenFirst);
     }
 
     async execute(editor: TextEditor, edit: TextEditorEdit) {
@@ -54,18 +54,11 @@ export class ShowRelatedCommand extends EditorCommand {
                 viewColumn: cfg.inColumn ? viewColumn : undefined
             };
 
-            if (uris.length === 1 && cfg.autoOpen) {
-                return await openEditor(uris[0], openOptions);
-            }
-
-            const pick = await RelatedQuickPick.show(uris, placeHolder, progressCancellation, openOptions);
-            if (!pick) return undefined;
-
-            return await pick.execute();
+            return await openEditor(uris[0], openOptions);
         }
         catch (ex) {
-            Logger.error(ex, 'ShowRelatedCommand');
-            return window.showErrorMessage(`Unable to show related files. See output channel for more details`);
+            Logger.error(ex, 'OpenFirstRelatedCommand');
+            return window.showErrorMessage(`Unable to open first related file. See output channel for more details`);
         }
         finally {
             progressCancellation.dispose();

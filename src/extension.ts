@@ -5,6 +5,7 @@ import { FindRelatedApi } from './extensionApi';
 import { Keyboard } from './keyboard';
 import { Logger } from './logger';
 import { RulesProvider } from './rulesProvider';
+import { OpenFirstRelatedCommand } from './commands/openFirst';
 
 // this method is called when your extension is activated
 export async function activate(context: ExtensionContext) {
@@ -15,6 +16,7 @@ export async function activate(context: ExtensionContext) {
 
     context.subscriptions.push(new Keyboard());
     context.subscriptions.push(new ShowRelatedCommand(context, rulesProvider));
+    context.subscriptions.push(new OpenFirstRelatedCommand(context, rulesProvider));
 
     const api = new FindRelatedApi(context, rulesProvider);
     context.subscriptions.push(api);

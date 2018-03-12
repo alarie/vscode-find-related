@@ -1,6 +1,6 @@
 {
     "name": "find-related",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "author": {
         "name": "Eric Amodio",
         "email": "eamodio@gmail.com"
@@ -186,6 +186,11 @@
                         "verbose"
                     ],
                     "description": "Specifies how much (if any) output will be sent to the FindRelated output channel"
+                },
+                "findrelated.inColumn": {
+                    "type": "boolean",
+                    "default": "false",
+                    "description": "Specifies if files should be opened in other columns"
                 }
             }
         },
@@ -194,12 +199,23 @@
                 "command": "findrelated.show",
                 "title": "Show Related Files",
                 "category": "Files"
+            },
+            {
+                "command": "findrelated.open-first",
+                "title": "Open first Related File",
+                "category": "Files"
             }
+
         ],
         "keybindings": [
             {
                 "command": "findrelated.show",
-                "key": "alt+r",
+                "key": "alt+r a",
+                "when": "editorFocus"
+            },
+            {
+                "command": "findrelated.open-first",
+                "key": "alt+r alt+r",
                 "when": "editorFocus"
             },
             {

@@ -1,27 +1,29 @@
 'use strict';
 import { CancellationTokenSource, QuickPickOptions, TextDocumentShowOptions, TextEditor, Uri, window, workspace } from 'vscode';
 import { OpenFileCommandQuickPickItem, QuickPickItem, showQuickPickProgress } from './common';
-import { ExtensionKey, IConfig } from '../configuration';
 import { Keyboard } from '../keyboard';
 import * as path from 'path';
 
 export class RelatedFileQuickPickItem extends OpenFileCommandQuickPickItem {
 
-    constructor(uri: Uri) {
+    showOptions: TextDocumentShowOptions;
+
+    constructor(uri: Uri, showOptions?: TextDocumentShowOptions) {
         const directory = path.dirname(workspace.asRelativePath(uri));
 
         super(uri, {
             label: `$(file-symlink-file) ${path.basename(uri.fsPath)}`,
             description: directory === '.' ? '' : directory
         });
+
+        this.showOptions = showOptions || {};
     }
 
     async execute(options: TextDocumentShowOptions = {}): Promise<TextEditor | undefined> {
-        if (options.preview === undefined) {
-            const cfg = workspace.getConfiguration().get<IConfig>(ExtensionKey);
-            options.preview = cfg && cfg.openPreview;
-        }
-        return super.execute(options);
+        return super.execute({
+            ...this.showOptions,
+            ...options
+        });
     }
 }
 
@@ -31,8 +33,13 @@ export class RelatedQuickPick {
         return showQuickPickProgress(placeHolder, undefined, true);
     }
 
-    static async show(uris: Uri[], placeHolder: string, progressCancellation: CancellationTokenSource): Promise<RelatedFileQuickPickItem | undefined> {
-        const items = uris.map(uri => new RelatedFileQuickPickItem(uri));
+    static async show(
+        uris: Uri[],
+        placeHolder: string,
+        progressCancellation: CancellationTokenSource,
+        showOptions?: TextDocumentShowOptions
+    ): Promise<RelatedFileQuickPickItem | undefined> {
+        const items = uris.map(uri => new RelatedFileQuickPickItem(uri, showOptions));
 
         const scope = await Keyboard.instance.beginScope();
 

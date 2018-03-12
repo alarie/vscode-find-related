@@ -1,5 +1,5 @@
 'use strict';
-import { TextDocument, Uri } from 'vscode';
+import { TextDocument, Uri, workspace } from 'vscode';
 import { Logger } from './logger';
 import { RulesProvider } from './rulesProvider';
 // import * as glob from 'glob';
@@ -52,7 +52,16 @@ export class Rule implements IRule, IRuleDefinition {
         for (const locator of this.locators) {
             if (this._match == null) continue;
 
-            const globPattern = Rule.replaceTokens(locator, this._match);
+            let globPattern = Rule.replaceTokens(locator, this._match);
+
+            // fix for multi-root workspace
+            if (workspace.rootPath) {
+                const compleFileName = document.fileName;
+                const rest = compleFileName.replace(workspace.rootPath, '');
+                const commonPart = fileName.replace(rest, '/');
+                globPattern = globPattern.replace(new RegExp(`([{,])${commonPart}`, 'g'), '$1');
+            }
+
             Logger.log(`Rule(${this.rulesetName}).provideRelated(${fileName}, ${rootPath})`, `globPattern=${globPattern}`);
             // yield Rule.globAsync(globPattern, { cwd: rootPath, nocase: true });
             yield RulesProvider.findFiles(globPattern);
